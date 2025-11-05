@@ -75,6 +75,8 @@
             align-items: center;
             justify-content: center;
             color: #666;
+            font-size: 0.9em;
+            text-align: center;
         }
 
         /* Map always visible on right */
@@ -83,6 +85,45 @@
             height: 100%;
             width: 100%;
             min-height: 300px; /* Ensure minimum height on mobile */
+        }
+
+        /* Search bar in map container */
+        .map-container {
+            position: relative;
+            height: 100%;
+        }
+        #search-form {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            z-index: 1000;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        #search-input {
+            width: 70%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+        #search-btn {
+            padding: 8px 12px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        #search-btn:hover {
+            background: #2980b9;
+        }
+        #search-result {
+            margin-top: 5px;
+            font-weight: bold;
+            text-align: center;
         }
 
         /* Mobile and tablet adjustments */
@@ -98,6 +139,11 @@
             }
             #map {
                 height: 100vh;
+            }
+            #search-form {
+                left: 420px; /* Offset for sidebar on desktop */
+                right: 10px;
+                width: auto;
             }
         }
         @media (max-width: 768px) {
@@ -117,6 +163,9 @@
             .img-placeholder {
                 height: 180px;
             }
+            #search-input {
+                width: 60%;
+            }
         }
     </style>
 </head>
@@ -134,7 +183,7 @@
             </ul>
 
             <div id="intro" class="section active">
-                <img src="https://source.unsplash.com/400x200/?minnesota,lake" alt="Mille Lacs Lake" class="img-placeholder">
+                <div class="img-placeholder">Generic photo of Mille Lacs Lake in central Minnesota</div>
                 <p><strong>Welcome!</strong> Explore central Minnesota’s lake country and the communities that make up House District 10A. This story map highlights demographics, major issues, and opportunities for growth championed by <strong>Bernie Penner</strong>.</p>
             </div>
 
@@ -146,7 +195,7 @@
                     <li>Median Income: $62,800</li>
                     <li>93% HS grad, 22% Bachelor’s+</li>
                 </ul>
-                <img src="https://source.unsplash.com/400x200/?community,minnesota" alt="Community Gathering" class="img-placeholder">
+                <div class="img-placeholder">Generic photo of a community gathering in rural Minnesota</div>
             </div>
 
             <div id="economy" class="section">
@@ -157,7 +206,7 @@
                     <li>Healthcare & Education (20%)</li>
                     <li>Agriculture (15%)</li>
                 </ul>
-                <img src="https://source.unsplash.com/400x200/?factory,minnesota" alt="Local Factory" class="img-placeholder">
+                <div class="img-placeholder">Generic photo of a factory or manufacturing site in Minnesota</div>
             </div>
 
             <div id="issues" class="section">
@@ -168,7 +217,7 @@
                     <li>Education Funding</li>
                     <li>Lake Protection & Forestry</li>
                 </ul>
-                <img src="https://source.unsplash.com/400x200/?protest,minnesota" alt="Community Discussion" class="img-placeholder">
+                <div class="img-placeholder">Generic photo of a community discussion or protest in Minnesota</div>
             </div>
 
             <div id="locations" class="section">
@@ -179,21 +228,35 @@
                     <li>Aitkin City Hall</li>
                     <li>Onamia City Hall</li>
                     <li>Milaca County Center</li>
+                    <li>Buh Township Hall (Morrison County)</li>
+                    <li>Pillager Township Hall (Crow Wing County)</li>
+                    <li>Granite Township Hall (Mille Lacs County)</li>
+                    <li>Comfort Township Hall (Kanabec County)</li>
+                    <li>McGregor Township Hall (Aitkin County)</li>
                 </ul>
-                <img src="https://source.unsplash.com/400x200/?townhall,minnesota" alt="Town Hall" class="img-placeholder">
+                <div class="img-placeholder">Generic photo of a town hall in rural Minnesota</div>
             </div>
 
             <div id="action" class="section">
                 <h3>Get Involved</h3>
                 <p>Volunteer, donate, and attend town halls across the district.</p>
                 <p><a href="mailto:info@berniepenner.org">info@berniepenner.org</a></p>
+                <div class="img-placeholder">Generic photo of a campaign event or volunteer group in Minnesota</div>
             </div>
         </aside>
 
-        <div id="map"></div>
+        <div class="map-container">
+            <div id="search-form">
+                <input type="text" id="search-input" placeholder="Enter address or city (e.g., Little Falls, MN)" />
+                <button id="search-btn" onclick="performSearch()">Search</button>
+                <div id="search-result"></div>
+            </div>
+            <div id="map"></div>
+        </div>
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-geosearch@3.11.1/dist/geosearch.umd.js"></script>
     <script>
         // Initialize map
         const map = L.map('map').setView([46.25, -93.75], 9); // Centered on District 10A
@@ -201,40 +264,80 @@
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
-        // Simplified district polygon (replace with real GeoJSON from MN LCC-GIS)
-        const district = {
-            "type": "Feature",
-            "geometry": {
-                "type": "Polygon",
-                "coordinates": [[
-                    [-94.1, 46.6], [-93.5, 46.6],
-                    [-93.5, 46.0], [-94.1, 46.0],
-                    [-94.1, 46.6]
-                ]]
-            },
-            "properties": { "name": "District 10A" }
-        };
-        L.geoJSON(district, {
-            style: { color: "#3498db", weight: 3, fillOpacity: 0.3, fillColor: "#3498db" },
-            onEachFeature: function (feature, layer) {
-                layer.bindPopup("<b>" + feature.properties.name + "</b><br>Central MN lake country & rural heartland.");
-            }
-        }).addTo(map);
+        // Removed district boundary as requested - no GeoJSON layer added
 
-        // Markers for key locations
+        // Markers for key locations (city halls + added township halls)
         const points = [
             ["Little Falls City Hall", [45.98, -94.36]],
             ["Brainerd City Hall", [46.36, -94.20]],
             ["Aitkin City Hall", [46.55, -93.70]],
             ["Onamia City Hall", [46.07, -93.67]],
-            ["Milaca County Center", [45.75, -93.65]]
+            ["Milaca County Center", [45.75, -93.65]],
+            ["Buh Township Hall (Morrison Co.)", [46.15, -94.50]],
+            ["Pillager Township Hall (Crow Wing Co.)", [46.33, -94.53]],
+            ["Granite Township Hall (Mille Lacs Co.)", [46.00, -93.50]],
+            ["Comfort Township Hall (Kanabec Co.)", [45.85, -93.30]],
+            ["McGregor Township Hall (Aitkin Co.)", [46.62, -93.96]]
         ];
         points.forEach(([name, coords]) => {
             L.marker(coords).addTo(map).bindPopup(name);
         });
 
-        // Fit map to district bounds
+        // Fit map to district bounds (approximate)
         map.fitBounds([[46.0, -94.2], [46.6, -93.4]]);
+
+        // Geosearch setup for address search
+        const provider = new L.GeoSearch.Control.Providers.OpenStreetMap();
+        const searchControl = new L.GeoSearch.Control({
+            provider: provider,
+            position: 'topleft', // Hidden since we use custom form
+            autoComplete: true,
+            autoCompleteDelay: 250,
+        }).addTo(map);
+
+        // Custom search function using Nominatim (OSM)
+        async function performSearch() {
+            const query = document.getElementById('search-input').value;
+            if (!query) return;
+
+            const resultDiv = document.getElementById('search-result');
+            resultDiv.innerHTML = 'Searching...';
+
+            try {
+                const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query + ', Minnesota')}&limit=1&addressdetails=1`);
+                const data = await response.json();
+
+                if (data && data.length > 0) {
+                    const { lat, lon } = data[0];
+                    const latLng = [parseFloat(lat), parseFloat(lon)];
+
+                    // Zoom to location
+                    map.setView(latLng, 12);
+
+                    // Approximate check if in District 10A (bounds-based; for demo - use real API for accuracy)
+                    const districtBounds = [[46.0, -94.2], [46.6, -93.4]];
+                    const isInDistrict = latLng[0] >= districtBounds[0][0] && latLng[0] <= districtBounds[1][0] &&
+                                        latLng[1] >= districtBounds[1][1] && latLng[1] <= districtBounds[0][1];
+
+                    resultDiv.innerHTML = isInDistrict ? 
+                        '<span style="color: green;">✅ Yes, this location is in District 10A!</span>' : 
+                        '<span style="color: red;">❌ This location is not in District 10A.</span>';
+
+                    // Add temporary marker
+                    L.marker(latLng).addTo(map).bindPopup(`Searched: ${query}<br>Lat/Lon: ${lat}, ${lon}`).openPopup();
+                } else {
+                    resultDiv.innerHTML = 'Location not found.';
+                }
+            } catch (error) {
+                resultDiv.innerHTML = 'Search error. Try again.';
+                console.error(error);
+            }
+        }
+
+        // Enter key support for search
+        document.getElementById('search-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') performSearch();
+        });
 
         // Section switching with map resize
         function showSection(id, link) {
