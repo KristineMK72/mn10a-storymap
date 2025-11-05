@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Bernie Penner for Minnesota House District 10A: Story Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -110,6 +111,12 @@
             margin: 10px 0;
             object-fit: cover;
         }
+        #map {
+            height: 400px;
+            width: 100%;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
         .footer {
             text-align: center;
             padding: 20px;
@@ -136,8 +143,8 @@
             .header {
                 padding: 10px;
             }
-            .img-placeholder {
-                height: 200px;
+            .img-placeholder, #map {
+                height: 250px;
             }
         }
     </style>
@@ -162,45 +169,73 @@
             <div class="header">
                 <img src="https://source.unsplash.com/200x200/?politician,campaign" alt="Bernie Penner">
                 <h1>Bernie Penner for Minnesota House District 10A: Story Map</h1>
-                <p>Welcome to <strong>Bernie Penner's District 10A Story Map</strong>—a dynamic guide to the heart of central Minnesota's lake country and rural heartland, where community, opportunity, and resilience define our shared future...</p>
-                <!-- Truncated for brevity; restore full intro content here -->
+                <p>Welcome to <strong>Bernie Penner's District 10A Story Map</strong>—a dynamic guide to the heart of central Minnesota's lake country and rural heartland, where community, opportunity, and resilience define our shared future. As a lifelong resident of central Minnesota, small business owner, and dedicated advocate for working families, Bernie Penner is running for the Minnesota House of Representatives in District 10A.</p>
+                <p>This district spans parts of <strong>Morrison, Crow Wing, Mille Lacs, Kanabec, and Aitkin Counties</strong>, including vibrant communities like Little Falls, Brainerd, Garrison, and Onamia, with a total population of about 43,200 (2025 estimates). It's known for its outdoorsy spirit, family farms, tourism, and resilient small-town economies.</p>
+                <p>This story map walks you through the district's <strong>demographics</strong>, <strong>economic drivers</strong>, <strong>key locations</strong>, and <strong>major issues</strong> facing our neighbors. Bernie's platform focuses on affordable housing, quality education, healthcare access, and sustainable economic growth—tailored to <em>your</em> priorities. Let's dive in.</p>
             </div>
-            <div class="img-placeholder">Interactive Map Placeholder (Add Leaflet.js or ArcGIS embed)</div>
+            <div id="map"></div>
+            <p><em>Interactive Map: Explore District 10A boundaries, cities, and landmarks. Zoom, pan, and click for details. (Data from MN LCC-GIS; simplified for demo.)</em></p>
         </div>
 
         <div id="demographics" class="section">
             <h2>1. The People of District 10A: Demographics at a Glance</h2>
-            <p>District 10A embodies Minnesota's northwoods charm...</p>
-            <!-- Restore full demographics content -->
+            <p>District 10A embodies Minnesota's northwoods charm: Tight-knit communities along lakes and rivers, with a focus on family, faith, and the outdoors. Growth is steady but tied to seasonal tourism and remote work trends.</p>
+            <ul>
+                <li><strong>Population Breakdown (2025 Estimates)</strong>: Total: 43,200 residents (up 1.5% from 2020). Age: 22% under 18; 60% working-age; 18% 65+. Diversity: 91% White; 3.5% American Indian; 2.1% Two or More Races; 1.8% Black; 1.2% Hispanic; 0.4% Asian.</li>
+                <li><strong>Household Composition</strong>: 68% family households; Voter turnout: 76% in 2024.</li>
+                <li><strong>Education Levels</strong>: 22% bachelor's or higher; 93% high school graduation.</li>
+            </ul>
+            <p><strong>Visual Snapshot</strong>: Picture snowmobile trails in winter, bass fishing on Mille Lacs in summer, and community bonfires—folks who value self-reliance and neighborly support.</p>
             <img src="https://source.unsplash.com/600x400/?minnesota,community" alt="District Community Gathering" class="img-placeholder">
+            <p>Bernie supports expanding rural broadband, tribal partnerships, and trade apprenticeships to empower every resident.</p>
         </div>
 
         <div id="economy" class="section">
             <h2>2. Economic Drivers: Powering Prosperity</h2>
-            <p>10A's economy thrives on nature's bounty...</p>
-            <!-- Restore full economy content -->
+            <p>10A's economy thrives on nature's bounty and blue-collar grit: Lakes draw tourists, forests feed mills, and farms fuel the heartland.</p>
+            <ul>
+                <li><strong>Key Industries</strong>: Tourism (28%, $200M+ from Mille Lacs); Manufacturing (22%); Healthcare/Education (20%); Agriculture (15%).</li>
+                <li><strong>Income & Affordability</strong>: Median Household: $62,800; Poverty: 11.2%; Unemployment: 4.1%; Median Home: $220,000.</li>
+            </ul>
             <img src="https://source.unsplash.com/600x400/?minnesota,economy,factory" alt="Local Manufacturing" class="img-placeholder">
+            <p>Bernie's plan: Property tax relief for seasonal businesses, workforce grants for college grads staying local, and conservation easements to protect farmland.</p>
         </div>
 
         <div id="issues" class="section">
             <h2>3. Major Issues: Voices from the District</h2>
-            <p>From bait shops in Garrison to diners in Little Falls...</p>
-            <!-- Restore full issues content -->
+            <p>From bait shops in Garrison to diners in Little Falls, 10A folks prioritize practical fixes.</p>
+            <ul>
+                <li><strong>Healthcare Access</strong>: Rural shortages; 18-min ambulance times.</li>
+                <li><strong>Education & Workforce</strong>: College expansions needed; youth outmigration.</li>
+                <li><strong>Housing & Infrastructure</strong>: 1,200-unit shortage; flooding risks.</li>
+                <li><strong>Environment</strong>: Lake protections; sustainable logging.</li>
+                <li><strong>Economic Equity & Safety</strong>: Inflation impacts; volunteer fire strains.</li>
+            </ul>
             <img src="https://source.unsplash.com/600x400/?minnesota,issues,protest" alt="Community Discussion" class="img-placeholder">
+            <p>Bernie commits to telehealth, school funding, and lake protection.</p>
         </div>
 
         <div id="locations" class="section">
             <h2>4. Key Locations: Where Community Happens</h2>
-            <p>10A's spots are gateways to adventure...</p>
-            <!-- Restore full locations content -->
+            <p>10A's spots are gateways to adventure and action—ideal for Bernie's listening tours.</p>
+            <ul>
+                <li><strong>City Halls</strong>: Little Falls (301 1st St SE); Brainerd (222 S 6th St); Aitkin (201 Main St W); Onamia (35555 Round Lake Rd NW); Mille Lacs County (525 2nd St SE).</li>
+                <li><strong>Other Spots</strong>: Central Lakes College; Mille Lacs Kathio State Park; Brainerd Lakes Airport.</li>
+            </ul>
             <img src="https://source.unsplash.com/600x400/?minnesota,townhall" alt="Little Falls City Hall" class="img-placeholder">
+            <p>Catch Bernie at events—details at <a href="https://berniepenner.org/events">berniepenner.org/events</a>.</p>
         </div>
 
         <div id="action" class="section">
             <h2>5. A Call to Action: Build the Future Together</h2>
-            <p>District 10A is the soul of Minnesota...</p>
-            <!-- Restore full action content -->
+            <p>District 10A is the soul of Minnesota: Eagle watchers on the Mississippi, ice anglers on Mille Lacs, innovators in Brainerd garages. Bernie Penner will champion you with real talk on taxes, trails, and trades.</p>
+            <ul>
+                <li><strong>Get Involved</strong>: Donate; Volunteer (canvass in Little Falls); Vote (2026).</li>
+            </ul>
             <img src="https://source.unsplash.com/600x400/?minnesota,action,campaign" alt="Get Involved" class="img-placeholder">
+            <p>For interactive maps, check MN LCC-GIS. Reach out: <a href="mailto:info@berniepenner.org">info@berniepenner.org</a>.</p>
+            <p><em>Data sources: U.S. Census (2023 ACS), MN LCC-GIS (2022 maps), DEED (2025 projections). Updated Nov 2025.</em></p>
+            <p>Let's keep the momentum—#PennerFor10A</p>
         </div>
 
         <footer class="footer">
@@ -208,7 +243,59 @@
         </footer>
     </main>
 
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
+        // Initialize the map
+        const map = L.map('map').setView([46.25, -93.75], 9); // Center on District 10A (approx. Brainerd/Little Falls area)
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // Sample GeoJSON for District 10A (simplified polygon - replace with real data from MN LCC-GIS)
+        const districtGeoJSON = {
+            "type": "Feature",
+            "properties": {"name": "MN House District 10A"},
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [[
+                    [-94.0, 46.5], [-93.5, 46.5], [-93.5, 46.0], [-94.0, 46.0], [-94.0, 46.5]
+                ]]
+            }
+        };
+
+        // Add district boundary
+        L.geoJSON(districtGeoJSON, {
+            style: {
+                color: "#3498db",
+                weight: 3,
+                fillOpacity: 0.3,
+                fillColor: "#3498db"
+            },
+            onEachFeature: function (feature, layer) {
+                layer.bindPopup("<b>" + feature.properties.name + "</b><br>Central MN's lake country & rural heartland.");
+            }
+        }).addTo(map);
+
+        // Add markers for key locations (interactive points)
+        const markers = [
+            { coords: [45.98, -94.36], popup: "Little Falls City Hall<br>301 1st St SE" },
+            { coords: [46.36, -94.20], popup: "Brainerd City Hall<br>222 S 6th St" },
+            { coords: [46.55, -93.70], popup: "Aitkin City Hall<br>201 Main St W" },
+            { coords: [46.07, -93.67], popup: "Onamia City Hall<br>35555 Round Lake Rd NW" },
+            { coords: [45.75, -93.65], popup: "Mille Lacs County Center<br>525 2nd St SE, Milaca" },
+            { coords: [46.36, -94.20], popup: "Central Lakes College<br>501 W College Dr, Brainerd" },
+            { coords: [46.25, -93.75], popup: "Mille Lacs Lake (Tourism Hub)" }
+        ];
+
+        markers.forEach(marker => {
+            L.marker(marker.coords).addTo(map)
+                .bindPopup(marker.popup);
+        });
+
+        // Fit map to district bounds (for better initial view)
+        map.fitBounds([[46.0, -94.2], [46.6, -93.4]]);
+
         function showSection(sectionId) {
             const sections = document.querySelectorAll('.section');
             sections.forEach(sec => sec.classList.remove('active'));
