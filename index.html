@@ -1,213 +1,262 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Bernie Penner – MN House District 10A Story Map</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Bernie Penner – MN House District 10A Story Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            font-family: "Segoe UI", Arial, sans-serif;
+            overflow-x: hidden;
+        }
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<style>
-  html, body {
-    height: 100%;
-    margin: 0;
-    font-family: "Segoe UI", Arial, sans-serif;
-    overflow: hidden;
-  }
+        /* --- Split-screen layout --- */
+        .container {
+            display: flex;
+            height: 100vh;
+            width: 100%;
+            flex-direction: column; /* Default to column for mobile */
+        }
 
-  /* --- Split-screen layout --- */
-  .container {
-    display: flex;
-    height: 100vh;
-    width: 100%;
-  }
+        /* Left story column */
+        .sidebar {
+            width: 420px;
+            background: #f9fafc;
+            border-right: 1px solid #ddd;
+            overflow-y: auto;
+            padding: 20px;
+            max-height: 100%; /* Ensure it doesn’t overflow */
+        }
+        .sidebar h2 {
+            color: #2c3e50;
+            margin-top: 0;
+            font-size: 1.5em;
+        }
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 10px 0 20px;
+        }
+        .sidebar a {
+            display: block;
+            color: #0066cc;
+            padding: 8px 10px;
+            border-radius: 5px;
+            text-decoration: none;
+            margin-bottom: 4px;
+            transition: background 0.3s;
+        }
+        .sidebar a:hover, .sidebar a.active {
+            background: #ddeeff;
+        }
+        .section {
+            display: none;
+            margin-bottom: 30px;
+            animation: fadeIn 0.4s;
+        }
+        .section.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .img-placeholder {
+            width: 100%;
+            height: 240px;
+            background: #ddd;
+            border-radius: 6px;
+            margin: 10px 0;
+            object-fit: cover;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+        }
 
-  /* Left story column */
-  .sidebar {
-    width: 420px;
-    background: #f9fafc;
-    border-right: 1px solid #ddd;
-    overflow-y: auto;
-    padding: 20px;
-  }
-  .sidebar h2 {
-    color: #2c3e50;
-    margin-top: 0;
-  }
-  .sidebar ul {
-    list-style: none;
-    padding: 0;
-    margin: 10px 0 20px;
-  }
-  .sidebar a {
-    display: block;
-    color: #0066cc;
-    padding: 8px 10px;
-    border-radius: 5px;
-    text-decoration: none;
-    margin-bottom: 4px;
-  }
-  .sidebar a:hover, .sidebar a.active {
-    background: #ddeeff;
-  }
-  .section {
-    display: none;
-    margin-bottom: 30px;
-    animation: fadeIn .4s;
-  }
-  .section.active {
-    display: block;
-  }
-  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+        /* Map always visible on right */
+        #map {
+            flex-grow: 1;
+            height: 100%;
+            width: 100%;
+            min-height: 300px; /* Ensure minimum height on mobile */
+        }
 
-  .img-placeholder {
-    width: 100%;
-    height: 240px;
-    background: #ddd;
-    border-radius: 6px;
-    margin: 10px 0;
-    object-fit: cover;
-  }
-
-  /* Map always visible on right */
-  #map {
-    flex-grow: 1;
-    height: 100%;
-    width: 100%;
-  }
-
-  /* Mobile stack */
-  @media (max-width: 768px) {
-    .container {
-      flex-direction: column;
-    }
-    .sidebar {
-      width: 100%;
-      height: auto;
-      border-right: none;
-      border-bottom: 1px solid #ddd;
-      max-height: 60vh;
-    }
-    #map {
-      height: 40vh;
-    }
-  }
-</style>
+        /* Mobile and tablet adjustments */
+        @media (min-width: 769px) {
+            .container {
+                flex-direction: row; /* Switch to row for desktop */
+            }
+            .sidebar {
+                width: 420px;
+                max-height: 100vh;
+                border-right: 1px solid #ddd;
+                border-bottom: none;
+            }
+            #map {
+                height: 100vh;
+            }
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                max-height: 50vh; /* Adjustable height for mobile */
+                border-bottom: 1px solid #ddd;
+                border-right: none;
+            }
+            #map {
+                height: 50vh; /* Half screen for mobile */
+            }
+            .sidebar a {
+                font-size: 0.9em;
+                padding: 6px 8px;
+            }
+            .img-placeholder {
+                height: 180px;
+            }
+        }
+    </style>
 </head>
 <body>
-<div class="container">
-  <aside class="sidebar">
-    <h2>Bernie Penner for District 10A</h2>
-    <ul>
-      <li><a href="#intro" onclick="showSection('intro', this)">Welcome</a></li>
-      <li><a href="#demographics" onclick="showSection('demographics', this)">Demographics</a></li>
-      <li><a href="#economy" onclick="showSection('economy', this)">Economy</a></li>
-      <li><a href="#issues" onclick="showSection('issues', this)">Major Issues</a></li>
-      <li><a href="#locations" onclick="showSection('locations', this)">Key Locations</a></li>
-      <li><a href="#action" onclick="showSection('action', this)">Get Involved</a></li>
-    </ul>
+    <div class="container">
+        <aside class="sidebar">
+            <h2>Bernie Penner for District 10A</h2>
+            <ul>
+                <li><a href="#intro" onclick="showSection('intro', this)" class="active">Welcome</a></li>
+                <li><a href="#demographics" onclick="showSection('demographics', this)">Demographics</a></li>
+                <li><a href="#economy" onclick="showSection('economy', this)">Economy</a></li>
+                <li><a href="#issues" onclick="showSection('issues', this)">Major Issues</a></li>
+                <li><a href="#locations" onclick="showSection('locations', this)">Key Locations</a></li>
+                <li><a href="#action" onclick="showSection('action', this)">Get Involved</a></li>
+            </ul>
 
-    <div id="intro" class="section active">
-      <img src="https://source.unsplash.com/400x200/?minnesota,lake" class="img-placeholder">
-      <p><strong>Welcome!</strong> Explore central Minnesota’s lake country and the communities that make up House District 10A. This story map highlights demographics, major issues, and opportunities for growth championed by <strong>Bernie Penner</strong>.</p>
+            <div id="intro" class="section active">
+                <img src="https://source.unsplash.com/400x200/?minnesota,lake" alt="Mille Lacs Lake" class="img-placeholder">
+                <p><strong>Welcome!</strong> Explore central Minnesota’s lake country and the communities that make up House District 10A. This story map highlights demographics, major issues, and opportunities for growth championed by <strong>Bernie Penner</strong>.</p>
+            </div>
+
+            <div id="demographics" class="section">
+                <h3>People of District 10A</h3>
+                <ul>
+                    <li>Population ≈ 43,200</li>
+                    <li>Median Age: 41.7</li>
+                    <li>Median Income: $62,800</li>
+                    <li>93% HS grad, 22% Bachelor’s+</li>
+                </ul>
+                <img src="https://source.unsplash.com/400x200/?community,minnesota" alt="Community Gathering" class="img-placeholder">
+            </div>
+
+            <div id="economy" class="section">
+                <h3>Economic Drivers</h3>
+                <ul>
+                    <li>Tourism (28%) – Mille Lacs & Brainerd Lakes</li>
+                    <li>Manufacturing (22%)</li>
+                    <li>Healthcare & Education (20%)</li>
+                    <li>Agriculture (15%)</li>
+                </ul>
+                <img src="https://source.unsplash.com/400x200/?factory,minnesota" alt="Local Factory" class="img-placeholder">
+            </div>
+
+            <div id="issues" class="section">
+                <h3>Major Issues</h3>
+                <ul>
+                    <li>Rural Healthcare Access</li>
+                    <li>Housing Shortage</li>
+                    <li>Education Funding</li>
+                    <li>Lake Protection & Forestry</li>
+                </ul>
+                <img src="https://source.unsplash.com/400x200/?protest,minnesota" alt="Community Discussion" class="img-placeholder">
+            </div>
+
+            <div id="locations" class="section">
+                <h3>Key Locations</h3>
+                <ul>
+                    <li>Little Falls City Hall</li>
+                    <li>Brainerd City Hall</li>
+                    <li>Aitkin City Hall</li>
+                    <li>Onamia City Hall</li>
+                    <li>Milaca County Center</li>
+                </ul>
+                <img src="https://source.unsplash.com/400x200/?townhall,minnesota" alt="Town Hall" class="img-placeholder">
+            </div>
+
+            <div id="action" class="section">
+                <h3>Get Involved</h3>
+                <p>Volunteer, donate, and attend town halls across the district.</p>
+                <p><a href="mailto:info@berniepenner.org">info@berniepenner.org</a></p>
+            </div>
+        </aside>
+
+        <div id="map"></div>
     </div>
 
-    <div id="demographics" class="section">
-      <h3>People of District 10A</h3>
-      <ul>
-        <li>Population ≈ 43 k</li>
-        <li>Median Age 41.7</li>
-        <li>Median Income $62 ,800</li>
-        <li>93 % HS grad, 22 % Bachelor’s+</li>
-      </ul>
-      <img src="https://source.unsplash.com/400x200/?community,minnesota" class="img-placeholder">
-    </div>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Initialize map
+        const map = L.map('map').setView([46.25, -93.75], 9); // Centered on District 10A
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
 
-    <div id="economy" class="section">
-      <h3>Economic Drivers</h3>
-      <ul>
-        <li>Tourism (28 %) – Mille Lacs & Brainerd Lakes</li>
-        <li>Manufacturing (22 %)</li>
-        <li>Healthcare & Education (20 %)</li>
-        <li>Agriculture (15 %)</li>
-      </ul>
-      <img src="https://source.unsplash.com/400x200/?factory,minnesota" class="img-placeholder">
-    </div>
+        // Simplified district polygon (replace with real GeoJSON from MN LCC-GIS)
+        const district = {
+            "type": "Feature",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [[
+                    [-94.1, 46.6], [-93.5, 46.6],
+                    [-93.5, 46.0], [-94.1, 46.0],
+                    [-94.1, 46.6]
+                ]]
+            },
+            "properties": { "name": "District 10A" }
+        };
+        L.geoJSON(district, {
+            style: { color: "#3498db", weight: 3, fillOpacity: 0.3, fillColor: "#3498db" },
+            onEachFeature: function (feature, layer) {
+                layer.bindPopup("<b>" + feature.properties.name + "</b><br>Central MN lake country & rural heartland.");
+            }
+        }).addTo(map);
 
-    <div id="issues" class="section">
-      <h3>Major Issues</h3>
-      <ul>
-        <li>Rural Healthcare Access</li>
-        <li>Housing Shortage</li>
-        <li>Education Funding</li>
-        <li>Lake Protection & Forestry</li>
-      </ul>
-    </div>
+        // Markers for key locations
+        const points = [
+            ["Little Falls City Hall", [45.98, -94.36]],
+            ["Brainerd City Hall", [46.36, -94.20]],
+            ["Aitkin City Hall", [46.55, -93.70]],
+            ["Onamia City Hall", [46.07, -93.67]],
+            ["Milaca County Center", [45.75, -93.65]]
+        ];
+        points.forEach(([name, coords]) => {
+            L.marker(coords).addTo(map).bindPopup(name);
+        });
 
-    <div id="locations" class="section">
-      <h3>Key Locations</h3>
-      <ul>
-        <li>Little Falls City Hall</li>
-        <li>Brainerd City Hall</li>
-        <li>Aitkin City Hall</li>
-        <li>Onamia City Hall</li>
-        <li>Milaca County Center</li>
-      </ul>
-      <img src="https://source.unsplash.com/400x200/?townhall,minnesota" class="img-placeholder">
-    </div>
+        // Fit map to district bounds
+        map.fitBounds([[46.0, -94.2], [46.6, -93.4]]);
 
-    <div id="action" class="section">
-      <h3>Get Involved</h3>
-      <p>Volunteer, donate, and attend town halls across the district.</p>
-      <p><a href="mailto:info@berniepenner.org">info@berniepenner.org</a></p>
-    </div>
-  </aside>
+        // Section switching with map resize
+        function showSection(id, link) {
+            const sections = document.querySelectorAll(".section");
+            sections.forEach(s => s.classList.remove("active"));
+            document.getElementById(id).classList.add("active");
 
-  <div id="map"></div>
-</div>
+            const links = document.querySelectorAll(".sidebar a");
+            links.forEach(a => a.classList.remove("active"));
+            link.classList.add("active");
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script>
-  // Initialize map
-  const map = L.map('map').setView([46.25, -93.75], 9);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap contributors'
-  }).addTo(map);
+            // Force map to resize after section change
+            setTimeout(() => {
+                map.invalidateSize();
+            }, 100); // Slight delay to ensure DOM update
+        }
 
-  // Simplified polygon
-  const district = {
-    "type": "Feature",
-    "geometry": {
-      "type": "Polygon",
-      "coordinates": [[
-        [-94.1,46.6],[-93.5,46.6],
-        [-93.5,46.0],[-94.1,46.0],
-        [-94.1,46.6]
-      ]]
-    }
-  };
-  L.geoJSON(district, {
-    style:{color:"#3498db",weight:3,fillOpacity:0.3}
-  }).addTo(map);
+        // Ensure map resizes on window resize
+        window.addEventListener('resize', () => map.invalidateSize());
 
-  // Markers
-  const points=[
-    ["Little Falls City Hall",[45.98,-94.36]],
-    ["Brainerd City Hall",[46.36,-94.20]],
-    ["Aitkin City Hall",[46.55,-93.70]],
-    ["Onamia City Hall",[46.07,-93.67]],
-    ["Milaca County Center",[45.75,-93.65]]
-  ];
-  points.forEach(([name,coords])=>L.marker(coords).addTo(map).bindPopup(name));
-  map.fitBounds([[46.0,-94.2],[46.6,-93.4]]);
-
-  // Section switching
-  function showSection(id,link){
-    document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
-    document.getElementById(id).classList.add("active");
-    document.querySelectorAll(".sidebar a").forEach(a=>a.classList.remove("active"));
-    link.classList.add("active");
-    setTimeout(()=>map.invalidateSize(),200);
-  }
-</script>
+        // Load intro section by default
+        window.onload = () => showSection('intro', document.querySelector('.sidebar a'));
+    </script>
 </body>
 </html>
