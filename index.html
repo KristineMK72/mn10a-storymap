@@ -43,7 +43,6 @@
       box-shadow: 0 2px 6px rgba(0,0,0,0.2);
     }
 
-    /* Desktop layout */
     @media (min-width: 769px) {
       .container {
         flex-direction: row;
@@ -101,6 +100,15 @@
     #search-btn:hover {
       background: #005ea6;
     }
+
+    a.map-link {
+      color: #005ea6;
+      text-decoration: none;
+    }
+
+    a.map-link:hover {
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
@@ -129,16 +137,20 @@
       <li>Protecting natural resources and clean lakes</li>
     </ul>
 
-    <h4>Town Hall Locations</h4>
+    <h4>Town Halls & City Links</h4>
     <ul>
-      <li>Brainerd City Hall</li>
-      <li>Baxter City Hall</li>
-      <li>Nisswa Community Center</li>
+      <li><a href="https://www.ci.brainerd.mn.us/" target="_blank">Brainerd City Hall</a></li>
+      <li><a href="https://www.baxtermn.gov/" target="_blank">Baxter City Hall</a></li>
+      <li><a href="https://www.cityofnisswa.com/" target="_blank">Nisswa Community Center</a></li>
+      <li><a href="https://www.cityofaitkin.com/" target="_blank">Aitkin City Hall</a></li>
+      <li><a href="https://www.cityofdeerwood.com/" target="_blank">Deerwood City Hall</a></li>
+      <li><a href="https://www.cityofcrosby.com/" target="_blank">Crosby City Hall</a></li>
+      <li><a href="https://www.pequotlakes-mn.gov/" target="_blank">Pequot Lakes City Hall</a></li>
     </ul>
 
     <img src="https://upload.wikimedia.org/wikipedia/commons/3/33/Brainerd_City_Hall.jpg" alt="Brainerd City Hall" class="photo">
     <img src="https://upload.wikimedia.org/wikipedia/commons/9/9f/Baxter_MN_water_tower.jpg" alt="Baxter Water Tower" class="photo">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/b/bb/Nisswa_Turtle_Races.jpg" alt="Nisswa community event" class="photo">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/b/bb/Nisswa_Turtle_Races.jpg" alt="Nisswa Turtle Races" class="photo">
 
     <h4>Upcoming Events</h4>
     <p>📅 <b>Town Hall – Dec 15, 2025</b><br>📍 Brainerd City Hall, 6:00 PM</p>
@@ -156,25 +168,29 @@
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
-  // Initialize map
-  const map = L.map('map').setView([46.35, -94.2], 10);
+  const map = L.map('map').setView([46.45, -94.2], 9);
 
-  // Add base layer
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; OpenStreetMap contributors'
   }).addTo(map);
 
-  // Markers for Town Halls
   const locations = [
-    { name: "Brainerd City Hall", coords: [46.358, -94.200] },
-    { name: "Baxter City Hall", coords: [46.343, -94.286] },
-    { name: "Nisswa Community Center", coords: [46.521, -94.288] }
+    { name: "Brainerd City Hall", coords: [46.358, -94.200], url: "https://www.ci.brainerd.mn.us/" },
+    { name: "Baxter City Hall", coords: [46.343, -94.286], url: "https://www.baxtermn.gov/" },
+    { name: "Nisswa Community Center", coords: [46.521, -94.288], url: "https://www.cityofnisswa.com/" },
+    { name: "Aitkin City Hall", coords: [46.534, -93.706], url: "https://www.cityofaitkin.com/" },
+    { name: "Crosby City Hall", coords: [46.480, -93.957], url: "https://www.cityofcrosby.com/" },
+    { name: "Deerwood City Hall", coords: [46.474, -93.896], url: "https://www.cityofdeerwood.com/" },
+    { name: "Garrison City Hall", coords: [46.288, -93.823], url: "#" },
+    { name: "Pequot Lakes City Hall", coords: [46.603, -94.309], url: "https://www.pequotlakes-mn.gov/" },
+    { name: "Emily City Hall", coords: [46.740, -93.958], url: "#" }
   ];
+
   locations.forEach(loc => {
-    L.marker(loc.coords).addTo(map).bindPopup(`<b>${loc.name}</b>`);
+    L.marker(loc.coords).addTo(map)
+      .bindPopup(`<b>${loc.name}</b><br><a href="${loc.url}" target="_blank" class="map-link">Visit Website</a>`);
   });
 
-  // Geocoding search
   const form = document.getElementById('search-form');
   const input = document.getElementById('search-input');
   let searchMarker = null;
@@ -196,16 +212,13 @@
 
         map.setView([latNum, lonNum], 15);
 
-        if (searchMarker) {
-          map.removeLayer(searchMarker);
-        }
-
+        if (searchMarker) map.removeLayer(searchMarker);
         searchMarker = L.marker([latNum, lonNum])
           .addTo(map)
           .bindPopup(`<b>${display_name}</b>`)
           .openPopup();
       } else {
-        alert("Address not found. Try including the city/state.");
+        alert("Address not found. Try including city/state.");
       }
     } catch (err) {
       console.error("Geocoding error:", err);
@@ -213,7 +226,6 @@
     }
   });
 
-  // Fix map size after load
   window.addEventListener('load', () => {
     setTimeout(() => map.invalidateSize(), 500);
   });
